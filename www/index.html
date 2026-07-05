@@ -1,0 +1,1138 @@
+<title>Tangkap Hewan Baik!</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<style>
+  :root {
+    --sky-top: #7EC8E3;
+    --sky-bottom: #D4EFFF;
+    --grass: #5A9E3E;
+    --grass-dark: #3D7A28;
+    --earth: #8B6914;
+    --cream: #FFF8E1;
+    --bark: #4E342E;
+    --gold: #F5A623;
+    --gold-bright: #FFD54F;
+    --coral: #E74C3C;
+    --coral-light: #FF8A80;
+    --leaf: #66BB6A;
+    --leaf-dark: #388E3C;
+    --overlay-bg: rgba(30, 60, 20, 0.88);
+    --panel-bg: rgba(255, 248, 225, 0.95);
+    --panel-border: rgba(78, 52, 46, 0.2);
+    --text: #3E2723;
+    --text-light: #795548;
+    --text-on-dark: #FFF8E1;
+    --bubble-good: rgba(102, 187, 106, 0.15);
+    --bubble-bad: rgba(231, 76, 60, 0.12);
+    --shadow: rgba(62, 39, 35, 0.15);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --sky-top: #0D1B2A;
+      --sky-bottom: #1B2D45;
+      --grass: #2E5930;
+      --grass-dark: #1B3B1E;
+      --cream: #1E2A1A;
+      --bark: #D7CCC8;
+      --gold: #FFB300;
+      --gold-bright: #FFD54F;
+      --leaf: #4CAF50;
+      --leaf-dark: #2E7D32;
+      --overlay-bg: rgba(10, 20, 8, 0.92);
+      --panel-bg: rgba(30, 42, 26, 0.95);
+      --panel-border: rgba(215, 204, 200, 0.15);
+      --text: #E8E0D8;
+      --text-light: #A89888;
+      --text-on-dark: #E8E0D8;
+      --bubble-good: rgba(76, 175, 80, 0.2);
+      --bubble-bad: rgba(231, 76, 60, 0.18);
+      --shadow: rgba(0, 0, 0, 0.3);
+    }
+  }
+  :root[data-theme="dark"] {
+    --sky-top: #0D1B2A;
+    --sky-bottom: #1B2D45;
+    --grass: #2E5930;
+    --grass-dark: #1B3B1E;
+    --cream: #1E2A1A;
+    --bark: #D7CCC8;
+    --gold: #FFB300;
+    --gold-bright: #FFD54F;
+    --leaf: #4CAF50;
+    --leaf-dark: #2E7D32;
+    --overlay-bg: rgba(10, 20, 8, 0.92);
+    --panel-bg: rgba(30, 42, 26, 0.95);
+    --panel-border: rgba(215, 204, 200, 0.15);
+    --text: #E8E0D8;
+    --text-light: #A89888;
+    --text-on-dark: #E8E0D8;
+    --bubble-good: rgba(76, 175, 80, 0.2);
+    --bubble-bad: rgba(231, 76, 60, 0.18);
+    --shadow: rgba(0, 0, 0, 0.3);
+  }
+  :root[data-theme="light"] {
+    --sky-top: #7EC8E3;
+    --sky-bottom: #D4EFFF;
+    --grass: #5A9E3E;
+    --grass-dark: #3D7A28;
+    --cream: #FFF8E1;
+    --bark: #4E342E;
+    --gold: #F5A623;
+    --gold-bright: #FFD54F;
+    --leaf: #66BB6A;
+    --leaf-dark: #388E3C;
+    --overlay-bg: rgba(30, 60, 20, 0.88);
+    --panel-bg: rgba(255, 248, 225, 0.95);
+    --panel-border: rgba(78, 52, 46, 0.2);
+    --text: #3E2723;
+    --text-light: #795548;
+    --text-on-dark: #FFF8E1;
+    --bubble-good: rgba(102, 187, 106, 0.15);
+    --bubble-bad: rgba(231, 76, 60, 0.12);
+    --shadow: rgba(62, 39, 35, 0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    overflow: hidden;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    background: var(--sky-bottom);
+  }
+
+  #game-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  canvas#bg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+  }
+
+  /* ---- HUD ---- */
+  #hud {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 12px 16px;
+    padding-top: max(12px, env(safe-area-inset-top, 12px));
+    pointer-events: none;
+  }
+
+  .hud-box {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 14px;
+    padding: 6px 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 8px var(--shadow);
+    pointer-events: auto;
+  }
+
+  .hud-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .hud-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--bark);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  #score-display { color: var(--gold); }
+  #level-display { color: var(--leaf-dark); }
+
+  .hud-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  #combo-display {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  #combo-display.visible { opacity: 1; }
+
+  /* ---- Animals ---- */
+  .animal {
+    position: absolute;
+    z-index: 5;
+    cursor: pointer;
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: transform 0.08s ease-out;
+    will-change: transform, left, top;
+    animation: animalAppear 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  .animal:active { transform: scale(0.85) !important; }
+
+  .animal-inner {
+    font-size: 42px;
+    line-height: 1;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.15));
+    pointer-events: none;
+  }
+
+  .animal-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  .animal.good .animal-bg { background: var(--bubble-good); }
+  .animal.bad .animal-bg { background: var(--bubble-bad); }
+
+  @keyframes animalAppear {
+    0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+
+  @keyframes animalCaught {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.8; }
+    100% { transform: scale(0) rotate(30deg); opacity: 0; }
+  }
+
+  @keyframes animalWrong {
+    0% { transform: scale(1); }
+    20% { transform: scale(1.3); }
+    100% { transform: scale(2); opacity: 0; }
+  }
+
+  @keyframes animalFade {
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.5) translateY(20px); }
+  }
+
+  .animal.caught { animation: animalCaught 0.35s ease-out forwards; pointer-events: none; }
+  .animal.wrong { animation: animalWrong 0.5s ease-out forwards; pointer-events: none; }
+  .animal.fading { animation: animalFade 0.4s ease-out forwards; pointer-events: none; }
+
+  /* ---- Particles ---- */
+  .particle {
+    position: absolute;
+    z-index: 8;
+    pointer-events: none;
+    font-size: 18px;
+    animation: particleFly 0.7s ease-out forwards;
+  }
+
+  @keyframes particleFly {
+    0% { opacity: 1; transform: translate(0, 0) scale(1); }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.3); }
+  }
+
+  .score-pop {
+    position: absolute;
+    z-index: 9;
+    pointer-events: none;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--gold);
+    text-shadow: 0 1px 3px var(--shadow);
+    animation: scorePop 0.8s ease-out forwards;
+  }
+
+  @keyframes scorePop {
+    0% { opacity: 1; transform: translateY(0) scale(0.5); }
+    30% { transform: translateY(-20px) scale(1.2); }
+    100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
+  }
+
+  /* ---- Overlays ---- */
+  .overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--overlay-bg);
+    padding: 24px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+  .overlay.active { opacity: 1; pointer-events: auto; }
+
+  .overlay-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 24px;
+    padding: 32px 28px;
+    max-width: 360px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 8px 32px var(--shadow);
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .overlay.active .overlay-card {
+    transform: scale(1) translateY(0);
+  }
+
+  .overlay-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--bark);
+    margin-bottom: 8px;
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  .overlay-subtitle {
+    font-size: 15px;
+    color: var(--text-light);
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
+
+  .animal-guide {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  .guide-col {
+    flex: 1;
+    max-width: 140px;
+  }
+
+  .guide-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+    padding: 3px 0;
+    border-radius: 6px;
+  }
+
+  .guide-label.good {
+    color: var(--leaf-dark);
+    background: var(--bubble-good);
+  }
+  .guide-label.bad {
+    color: var(--coral);
+    background: var(--bubble-bad);
+  }
+
+  .guide-animals {
+    font-size: 28px;
+    line-height: 1.5;
+    letter-spacing: 2px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 36px;
+    border: none;
+    border-radius: 16px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: scale(0.95); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--leaf), var(--leaf-dark));
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.35);
+  }
+
+  .btn-danger {
+    background: linear-gradient(135deg, var(--coral), #C0392B);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(231, 76, 60, 0.3);
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin: 16px 0;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .high-score-note {
+    font-size: 13px;
+    color: var(--gold);
+    font-weight: 600;
+    margin-top: 8px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .high-score-note.visible { opacity: 1; }
+
+  /* Screen shake */
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px) rotate(-1deg); }
+    40% { transform: translateX(6px) rotate(1deg); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(3px); }
+  }
+  .shaking { animation: shake 0.4s ease-out; }
+
+  /* Stars for night theme */
+  .star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    z-index: 1;
+    animation: twinkle 3s infinite ease-in-out;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  /* Level up banner */
+  #level-banner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    z-index: 20;
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--gold-bright);
+    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    pointer-events: none;
+    opacity: 0;
+    white-space: nowrap;
+  }
+
+  @keyframes levelUp {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    20% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+    70% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+  }
+
+  /* Danger flash */
+  #danger-flash {
+    position: absolute;
+    inset: 0;
+    z-index: 15;
+    background: radial-gradient(circle, transparent 30%, var(--coral));
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s;
+  }
+
+  @media (max-width: 360px) {
+    .overlay-card { padding: 24px 20px; }
+    .overlay-title { font-size: 26px; }
+    .guide-animals { font-size: 24px; }
+    .animal-inner { font-size: 36px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+
+<div id="game-container">
+  <canvas id="bg"></canvas>
+
+  <div id="hud">
+    <div class="hud-box">
+      <div>
+        <div class="hud-label">Skor</div>
+        <div class="hud-value" id="score-display">0</div>
+      </div>
+    </div>
+    <div class="hud-center">
+      <div class="hud-box">
+        <div>
+          <div class="hud-label">Level</div>
+          <div class="hud-value" id="level-display">1</div>
+        </div>
+      </div>
+      <div id="combo-display"></div>
+    </div>
+    <div class="hud-box">
+      <div>
+        <div class="hud-label">Terbaik</div>
+        <div class="hud-value" id="best-display">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="play-area"></div>
+  <div id="level-banner"></div>
+  <div id="danger-flash"></div>
+
+  <!-- Start screen -->
+  <div class="overlay active" id="start-screen">
+    <div class="overlay-card">
+      <div style="font-size: 52px; margin-bottom: 8px;">🌿</div>
+      <div class="overlay-title">Tangkap Hewan Baik!</div>
+      <div class="overlay-subtitle">
+        Sentuh hewan herbivora untuk mendapat poin.<br>
+        Jangan sentuh hewan karnivora atau kamu kalah!
+      </div>
+      <div class="animal-guide">
+        <div class="guide-col">
+          <div class="guide-label good">Tangkap!</div>
+          <div class="guide-animals">🐰🐮🐑🐔🦋🐢🐴🐿️🦌🐸</div>
+        </div>
+        <div class="guide-col">
+          <div class="guide-label bad">Jangan!</div>
+          <div class="guide-animals">🦁🐺🐍🐊🦅🐅🦈</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="btn-start">Mulai Main</button>
+    </div>
+  </div>
+
+  <!-- Game over screen -->
+  <div class="overlay" id="gameover-screen">
+    <div class="overlay-card">
+      <div style="font-size: 52px; margin-bottom: 8px;" id="gameover-emoji">😱</div>
+      <div class="overlay-title" id="gameover-title">Game Over!</div>
+      <div class="overlay-subtitle" id="gameover-reason"></div>
+      <div class="stat-row">
+        <div class="stat-item">
+          <div class="stat-value" id="final-score">0</div>
+          <div class="stat-label">Skor</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="final-caught">0</div>
+          <div class="stat-label">Tertangkap</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="final-level">1</div>
+          <div class="stat-label">Level</div>
+        </div>
+      </div>
+      <div class="high-score-note" id="new-best">Rekor Baru!</div>
+      <button class="btn btn-primary" id="btn-restart" style="margin-top: 12px;">Main Lagi</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ---- Audio engine (Web Audio API, no external files) ----
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  let audioCtx;
+  function ensureAudio() {
+    if (!audioCtx) audioCtx = new AudioCtx();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  }
+
+  function playTone(freq, duration, type, vol) {
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(vol || 0.15, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  }
+
+  function sfxCatch() {
+    playTone(523, 0.1, 'sine', 0.12);
+    setTimeout(() => playTone(784, 0.15, 'sine', 0.1), 60);
+  }
+
+  function sfxCombo() {
+    playTone(659, 0.08, 'triangle', 0.1);
+    setTimeout(() => playTone(880, 0.08, 'triangle', 0.1), 50);
+    setTimeout(() => playTone(1047, 0.15, 'triangle', 0.08), 100);
+  }
+
+  function sfxWrong() {
+    playTone(200, 0.3, 'sawtooth', 0.12);
+    setTimeout(() => playTone(150, 0.4, 'sawtooth', 0.1), 100);
+  }
+
+  function sfxLevelUp() {
+    [523, 659, 784, 1047].forEach((f, i) => {
+      setTimeout(() => playTone(f, 0.15, 'sine', 0.1), i * 80);
+    });
+  }
+
+  // ---- Animals ----
+  const GOOD_ANIMALS = [
+    { emoji: '🐰', name: 'Kelinci' },
+    { emoji: '🐮', name: 'Sapi' },
+    { emoji: '🐑', name: 'Domba' },
+    { emoji: '🐔', name: 'Ayam' },
+    { emoji: '🦋', name: 'Kupu-kupu' },
+    { emoji: '🐢', name: 'Kura-kura' },
+    { emoji: '🐴', name: 'Kuda' },
+    { emoji: '🐿️', name: 'Tupai' },
+    { emoji: '🦌', name: 'Rusa' },
+    { emoji: '🐸', name: 'Katak' },
+  ];
+
+  const BAD_ANIMALS = [
+    { emoji: '🦁', name: 'Singa' },
+    { emoji: '🐺', name: 'Serigala' },
+    { emoji: '🐍', name: 'Ular' },
+    { emoji: '🐊', name: 'Buaya' },
+    { emoji: '🦅', name: 'Elang' },
+    { emoji: '🐅', name: 'Harimau' },
+    { emoji: '🦈', name: 'Hiu' },
+  ];
+
+  // ---- Game state ----
+  let state = {
+    running: false,
+    score: 0,
+    level: 1,
+    caught: 0,
+    combo: 0,
+    bestCombo: 0,
+    highScore: parseInt(localStorage.getItem('animal-game-hs') || '0', 10),
+    animals: [],
+    spawnTimer: null,
+    animFrame: null,
+    lastSpawn: 0,
+  };
+
+  // ---- DOM refs ----
+  const container = document.getElementById('game-container');
+  const playArea = document.getElementById('play-area');
+  const bgCanvas = document.getElementById('bg');
+  const bgCtx = bgCanvas.getContext('2d');
+  const scoreEl = document.getElementById('score-display');
+  const levelEl = document.getElementById('level-display');
+  const bestEl = document.getElementById('best-display');
+  const comboEl = document.getElementById('combo-display');
+  const startScreen = document.getElementById('start-screen');
+  const gameoverScreen = document.getElementById('gameover-screen');
+  const levelBanner = document.getElementById('level-banner');
+  const dangerFlash = document.getElementById('danger-flash');
+
+  bestEl.textContent = state.highScore;
+
+  // ---- Background rendering ----
+  let bgW, bgH;
+  const clouds = [];
+  const grassBlades = [];
+
+  function initBg() {
+    bgW = bgCanvas.width = container.clientWidth * devicePixelRatio;
+    bgH = bgCanvas.height = container.clientHeight * devicePixelRatio;
+    bgCanvas.style.width = container.clientWidth + 'px';
+    bgCanvas.style.height = container.clientHeight + 'px';
+    bgCtx.scale(devicePixelRatio, devicePixelRatio);
+
+    clouds.length = 0;
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+    for (let i = 0; i < 5; i++) {
+      clouds.push({
+        x: Math.random() * w,
+        y: 30 + Math.random() * h * 0.25,
+        r: 30 + Math.random() * 40,
+        speed: 0.15 + Math.random() * 0.3,
+      });
+    }
+  }
+
+  function getCSS(v) {
+    return getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  }
+
+  function drawBg() {
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+    bgCtx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+
+    const skyTop = getCSS('--sky-top');
+    const skyBottom = getCSS('--sky-bottom');
+    const grass = getCSS('--grass');
+    const grassDark = getCSS('--grass-dark');
+
+    const skyGrad = bgCtx.createLinearGradient(0, 0, 0, h * 0.7);
+    skyGrad.addColorStop(0, skyTop);
+    skyGrad.addColorStop(1, skyBottom);
+    bgCtx.fillStyle = skyGrad;
+    bgCtx.fillRect(0, 0, w, h);
+
+    // Clouds
+    const isDark = skyTop.charAt(1) === '0' || skyTop.charAt(1) === '1';
+    bgCtx.fillStyle = isDark ? 'rgba(200,220,255,0.06)' : 'rgba(255,255,255,0.7)';
+    for (const c of clouds) {
+      c.x += c.speed;
+      if (c.x > w + c.r * 3) c.x = -c.r * 3;
+      bgCtx.beginPath();
+      bgCtx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+      bgCtx.arc(c.x + c.r * 0.8, c.y - c.r * 0.3, c.r * 0.7, 0, Math.PI * 2);
+      bgCtx.arc(c.x - c.r * 0.6, c.y + c.r * 0.1, c.r * 0.6, 0, Math.PI * 2);
+      bgCtx.fill();
+    }
+
+    // Ground
+    const groundY = h * 0.78;
+    bgCtx.fillStyle = grass;
+    bgCtx.beginPath();
+    bgCtx.moveTo(0, groundY);
+    for (let x = 0; x <= w; x += 40) {
+      bgCtx.lineTo(x, groundY + Math.sin(x * 0.03 + Date.now() * 0.001) * 6);
+    }
+    bgCtx.lineTo(w, h);
+    bgCtx.lineTo(0, h);
+    bgCtx.closePath();
+    bgCtx.fill();
+
+    bgCtx.fillStyle = grassDark;
+    bgCtx.beginPath();
+    bgCtx.moveTo(0, groundY + 20);
+    for (let x = 0; x <= w; x += 30) {
+      bgCtx.lineTo(x, groundY + 20 + Math.sin(x * 0.05 + 1) * 4);
+    }
+    bgCtx.lineTo(w, h);
+    bgCtx.lineTo(0, h);
+    bgCtx.closePath();
+    bgCtx.fill();
+
+    // Grass tufts
+    bgCtx.strokeStyle = isDark ? 'rgba(76,175,80,0.3)' : 'rgba(56,142,60,0.35)';
+    bgCtx.lineWidth = 1.5;
+    for (let x = 10; x < w; x += 25) {
+      const by = groundY + Math.sin(x * 0.03) * 6;
+      const sway = Math.sin(Date.now() * 0.002 + x * 0.1) * 3;
+      bgCtx.beginPath();
+      bgCtx.moveTo(x, by);
+      bgCtx.quadraticCurveTo(x + sway, by - 14, x + sway * 1.5, by - 20);
+      bgCtx.stroke();
+    }
+
+    // Night stars
+    if (isDark) {
+      const time = Date.now() * 0.001;
+      bgCtx.fillStyle = '#fff';
+      for (let i = 0; i < 40; i++) {
+        const sx = (i * 97.3 + 13) % w;
+        const sy = (i * 53.7 + 7) % (h * 0.5);
+        const alpha = 0.3 + 0.5 * Math.sin(time + i * 1.7);
+        bgCtx.globalAlpha = alpha;
+        bgCtx.fillRect(sx, sy, 1.5, 1.5);
+      }
+      bgCtx.globalAlpha = 1;
+    }
+  }
+
+  // ---- Difficulty curve ----
+  function getSpawnInterval() {
+    return Math.max(400, 1400 - state.level * 100);
+  }
+
+  function getBadChance() {
+    return Math.min(0.45, 0.2 + state.level * 0.025);
+  }
+
+  function getMaxAnimals() {
+    return Math.min(8, 3 + Math.floor(state.level / 2));
+  }
+
+  function getAnimalLifespan() {
+    return Math.max(1500, 3500 - state.level * 150);
+  }
+
+  // ---- Spawn animals ----
+  function spawnAnimal() {
+    if (!state.running) return;
+    if (state.animals.length >= getMaxAnimals()) return;
+
+    const isBad = Math.random() < getBadChance();
+    const pool = isBad ? BAD_ANIMALS : GOOD_ANIMALS;
+    const animal = pool[Math.floor(Math.random() * pool.length)];
+
+    const size = 64;
+    const margin = 20;
+    const hudHeight = 70;
+    const groundTop = container.clientHeight * 0.72;
+    const x = margin + Math.random() * (container.clientWidth - size - margin * 2);
+    const y = hudHeight + margin + Math.random() * (groundTop - hudHeight - size - margin * 2);
+
+    const el = document.createElement('div');
+    el.className = 'animal ' + (isBad ? 'bad' : 'good');
+    el.style.width = size + 'px';
+    el.style.height = size + 'px';
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+
+    const bg = document.createElement('div');
+    bg.className = 'animal-bg';
+    el.appendChild(bg);
+
+    const inner = document.createElement('div');
+    inner.className = 'animal-inner';
+    inner.textContent = animal.emoji;
+    el.appendChild(inner);
+
+    const id = Date.now() + Math.random();
+    const animalData = {
+      id,
+      el,
+      isBad,
+      animal,
+      x, y,
+      vx: (Math.random() - 0.5) * 1.2,
+      vy: (Math.random() - 0.5) * 0.8,
+      born: Date.now(),
+      lifespan: getAnimalLifespan(),
+      alive: true,
+      wobblePhase: Math.random() * Math.PI * 2,
+    };
+
+    el.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onAnimalTap(animalData);
+    }, { passive: false });
+
+    state.animals.push(animalData);
+    playArea.appendChild(el);
+  }
+
+  // ---- Handle taps ----
+  function onAnimalTap(a) {
+    if (!a.alive || !state.running) return;
+    a.alive = false;
+    ensureAudio();
+
+    if (a.isBad) {
+      // Game over!
+      a.el.classList.add('wrong');
+      sfxWrong();
+      dangerFlash.style.opacity = '0.6';
+      container.classList.add('shaking');
+      setTimeout(() => {
+        dangerFlash.style.opacity = '0';
+        container.classList.remove('shaking');
+      }, 400);
+
+      spawnParticles(a.x + 32, a.y + 32, ['💥', '❌', '☠️'], 5);
+      gameOver(a.animal);
+    } else {
+      // Caught!
+      a.el.classList.add('caught');
+      state.combo++;
+      if (state.combo > state.bestCombo) state.bestCombo = state.combo;
+
+      let points = 10;
+      if (state.combo >= 3) {
+        points = 10 + (state.combo - 2) * 5;
+        sfxCombo();
+      } else {
+        sfxCatch();
+      }
+
+      state.score += points;
+      state.caught++;
+      updateHUD();
+
+      showScorePop(a.x + 32, a.y, '+' + points);
+      spawnParticles(a.x + 32, a.y + 32, ['✨', '🌟', '💚'], 4);
+
+      // Level up check
+      const newLevel = Math.floor(state.score / 80) + 1;
+      if (newLevel > state.level) {
+        state.level = newLevel;
+        updateHUD();
+        showLevelBanner();
+        sfxLevelUp();
+      }
+    }
+
+    setTimeout(() => {
+      if (a.el.parentNode) a.el.remove();
+      state.animals = state.animals.filter(aa => aa.id !== a.id);
+    }, 500);
+  }
+
+  // ---- Combo timer ----
+  let comboResetTimer = null;
+  function resetComboSoon() {
+    clearTimeout(comboResetTimer);
+    comboResetTimer = setTimeout(() => {
+      state.combo = 0;
+      comboEl.classList.remove('visible');
+    }, 2000);
+  }
+
+  // ---- HUD ----
+  function updateHUD() {
+    scoreEl.textContent = state.score;
+    levelEl.textContent = state.level;
+
+    if (state.combo >= 2) {
+      comboEl.textContent = 'Combo x' + state.combo + '!';
+      comboEl.classList.add('visible');
+    }
+    resetComboSoon();
+  }
+
+  // ---- Effects ----
+  function spawnParticles(cx, cy, emojis, count) {
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      const angle = (Math.PI * 2 / count) * i + Math.random() * 0.5;
+      const dist = 40 + Math.random() * 30;
+      p.style.left = cx + 'px';
+      p.style.top = cy + 'px';
+      p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+      p.style.setProperty('--dy', Math.sin(angle) * dist - 20 + 'px');
+      playArea.appendChild(p);
+      setTimeout(() => p.remove(), 700);
+    }
+  }
+
+  function showScorePop(x, y, text) {
+    const el = document.createElement('div');
+    el.className = 'score-pop';
+    el.textContent = text;
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    playArea.appendChild(el);
+    setTimeout(() => el.remove(), 800);
+  }
+
+  function showLevelBanner() {
+    levelBanner.textContent = 'Level ' + state.level + '!';
+    levelBanner.style.animation = 'none';
+    levelBanner.offsetHeight;
+    levelBanner.style.animation = 'levelUp 1.2s ease-out forwards';
+  }
+
+  // ---- Game loop ----
+  function gameLoop() {
+    if (!state.running) return;
+
+    const now = Date.now();
+
+    // Spawn
+    if (now - state.lastSpawn > getSpawnInterval()) {
+      spawnAnimal();
+      state.lastSpawn = now;
+    }
+
+    // Update animals
+    const w = container.clientWidth;
+    const groundTop = container.clientHeight * 0.72;
+    const hudH = 70;
+
+    for (const a of state.animals) {
+      if (!a.alive) continue;
+
+      const age = now - a.born;
+
+      // Fade out when old
+      if (age > a.lifespan) {
+        a.alive = false;
+        a.el.classList.add('fading');
+        setTimeout(() => {
+          if (a.el.parentNode) a.el.remove();
+          state.animals = state.animals.filter(aa => aa.id !== a.id);
+        }, 400);
+        continue;
+      }
+
+      // Move
+      a.x += a.vx;
+      a.y += a.vy;
+
+      // Bounce off walls
+      if (a.x < 10) { a.x = 10; a.vx = Math.abs(a.vx); }
+      if (a.x > w - 74) { a.x = w - 74; a.vx = -Math.abs(a.vx); }
+      if (a.y < hudH) { a.y = hudH; a.vy = Math.abs(a.vy); }
+      if (a.y > groundTop - 64) { a.y = groundTop - 64; a.vy = -Math.abs(a.vy); }
+
+      // Wobble
+      const wobble = Math.sin(now * 0.004 + a.wobblePhase) * 3;
+
+      a.el.style.left = a.x + 'px';
+      a.el.style.top = (a.y + wobble) + 'px';
+
+      // Opacity based on remaining life
+      const lifeLeft = 1 - age / a.lifespan;
+      if (lifeLeft < 0.3) {
+        a.el.style.opacity = lifeLeft / 0.3;
+      }
+    }
+
+    // Draw background
+    drawBg();
+
+    state.animFrame = requestAnimationFrame(gameLoop);
+  }
+
+  // ---- Game flow ----
+  function startGame() {
+    ensureAudio();
+    state.running = true;
+    state.score = 0;
+    state.level = 1;
+    state.caught = 0;
+    state.combo = 0;
+    state.bestCombo = 0;
+    state.animals = [];
+    state.lastSpawn = 0;
+
+    playArea.innerHTML = '';
+    updateHUD();
+
+    startScreen.classList.remove('active');
+    gameoverScreen.classList.remove('active');
+
+    gameLoop();
+  }
+
+  function gameOver(killerAnimal) {
+    state.running = false;
+    cancelAnimationFrame(state.animFrame);
+
+    const isNewBest = state.score > state.highScore;
+    if (isNewBest) {
+      state.highScore = state.score;
+      localStorage.setItem('animal-game-hs', state.highScore);
+      bestEl.textContent = state.highScore;
+    }
+
+    setTimeout(() => {
+      document.getElementById('gameover-emoji').textContent = killerAnimal.emoji;
+      document.getElementById('gameover-title').textContent = 'Kamu Menangkap ' + killerAnimal.name + '!';
+      document.getElementById('gameover-reason').textContent =
+        killerAnimal.name + ' adalah karnivora! Jangan sentuh hewan pemangsa.';
+      document.getElementById('final-score').textContent = state.score;
+      document.getElementById('final-caught').textContent = state.caught;
+      document.getElementById('final-level').textContent = state.level;
+
+      const newBestEl = document.getElementById('new-best');
+      if (isNewBest && state.score > 0) {
+        newBestEl.textContent = '🏆 Rekor Baru! 🏆';
+        newBestEl.classList.add('visible');
+      } else {
+        newBestEl.classList.remove('visible');
+      }
+
+      gameoverScreen.classList.add('active');
+    }, 600);
+  }
+
+  // ---- Event listeners ----
+  document.getElementById('btn-start').addEventListener('click', startGame);
+  document.getElementById('btn-restart').addEventListener('click', startGame);
+
+  // Tap on empty area resets combo
+  playArea.addEventListener('pointerdown', () => {
+    if (state.running) {
+      state.combo = 0;
+      comboEl.classList.remove('visible');
+    }
+  });
+
+  // Prevent zoom on double tap
+  document.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+
+  let lastTouchEnd = 0;
+  document.addEventListener('touchend', (e) => {
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) e.preventDefault();
+    lastTouchEnd = now;
+  }, false);
+
+  // Resize
+  function onResize() {
+    initBg();
+    drawBg();
+  }
+  window.addEventListener('resize', onResize);
+  initBg();
+  drawBg();
+
+  // Idle background animation
+  function idleBg() {
+    if (!state.running) {
+      drawBg();
+    }
+    requestAnimationFrame(idleBg);
+  }
+  idleBg();
+
+})();
+</script>

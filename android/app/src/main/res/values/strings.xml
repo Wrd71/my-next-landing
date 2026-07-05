@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Tangkap Hewan Baik!</string>
+    <string name="title_activity_main">Tangkap Hewan Baik!</string>
+    <string name="package_name">id.wrd71.tangkaphewan</string>
+    <string name="custom_url_scheme">id.wrd71.tangkaphewan</string>
+</resources>

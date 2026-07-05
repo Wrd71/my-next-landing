@@ -1,0 +1,9 @@
+{
+  "appId": "id.wrd71.tangkaphewan",
+  "appName": "Tangkap Hewan Baik!",
+  "webDir": "www",
+  "backgroundColor": "#7EC8E3",
+  "android": {
+    "backgroundColor": "#7EC8E3"
+  }
+}
